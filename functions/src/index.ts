@@ -141,7 +141,7 @@ const sendMail = async (newArrivalMailText: string) => {
 export const scrapeManga = functions
   .runWith({ timeoutSeconds: 300, memory: "1GB" })
   .region("asia-northeast1")
-  .pubsub.schedule("*/5 * * * *")
+  .pubsub.schedule("0 8 1 * *")
   .timeZone("Asia/Tokyo")
   .onRun(async () => {
     // 今月の新入荷一覧を取得
