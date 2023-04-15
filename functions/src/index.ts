@@ -103,7 +103,7 @@ const formatFilterdNewArrivalListToMailText = (
         previousValue +
         `${currentValue.arrivalDate} ${currentValue.mangaTitle}\n`
       );
-    }, "快活クラブ 栄広小路店\n\n");
+    }, `${config.store.name}}\n\n`);
   } else {
     return "今月は購読しているマンガの入荷はありません。";
   }
@@ -129,8 +129,8 @@ const sendMail = async (newArrivalMailText: string) => {
   });
 
   const mailOptions = {
-    from: "マンガ新刊情報通知サービス(By Ryusei Tomari)",
-    to: "t.ryu6635@gmail.com",
+    from: "マンガ新刊情報通知サービス",
+    to: config.gmail.email_address,
     subject: `${getFormattedDate()}の新刊入荷情報`,
     text: newArrivalMailText,
   };
