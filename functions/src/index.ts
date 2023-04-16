@@ -6,14 +6,14 @@ import { mySubScriptionTitleList } from "./myMangaList";
 
 const config = functions.config();
 
-type NewArrivalList = {
+type NewArrival = {
   arrivalDate: string | null;
   mangaTitle: string | null;
-}[];
+};
 
-const execScrapingManga = async (): Promise<NewArrivalList> => {
+const execScrapingManga = async (): Promise<NewArrival[]> => {
   // 全新入荷マンガ情報を格納する配列
-  const newArrivalList: NewArrivalList = [];
+  const newArrivalList: NewArrival[] = [];
   const browser = await puppeteer.launch({
     headless: true,
     args: [
@@ -31,28 +31,31 @@ const execScrapingManga = async (): Promise<NewArrivalList> => {
 
   while (true) {
     // スクレイピング
-    const newArrivalDL = await page.$("dl");
-    if (newArrivalDL) {
-      const newArrivalDT = await newArrivalDL.$$("dt");
-      const newArrivalDD = await newArrivalDL.$$("dd");
+    const newArrivalDlElem = await page.$("dl");
 
-      for (let i = 0; i < newArrivalDT.length; i++) {
-        const arrivalDate = await (
-          await newArrivalDT[i].getProperty("textContent")
+    if (!newArrivalDlElem) {
+      break;
+    }
+
+    const newArrivalDtElems = await newArrivalDlElem.$$("dt");
+    const newArrivalDdElems = await newArrivalDlElem.$$("dd");
+
+    for (let i = 0; i < newArrivalDtElems.length; i++) {
+      const arrivalDate = await (
+        await newArrivalDtElems[i].getProperty("textContent")
+      ).jsonValue();
+
+      const ddTtile = await newArrivalDdElems[i].$("div.title");
+      if (ddTtile) {
+        const mangaTitle = await (
+          await ddTtile.getProperty("textContent")
         ).jsonValue();
 
-        const ddTtile = await newArrivalDD[i].$("div.title");
-        if (ddTtile) {
-          const mangaTitle = await (
-            await ddTtile.getProperty("textContent")
-          ).jsonValue();
-
-          // 入荷日とタイトルのみ取得してまとめる
-          newArrivalList.push({
-            arrivalDate: arrivalDate,
-            mangaTitle: mangaTitle,
-          });
-        }
+        // 入荷日とタイトルのみ取得してまとめる
+        newArrivalList.push({
+          arrivalDate: arrivalDate,
+          mangaTitle: mangaTitle,
+        });
       }
     }
 
@@ -82,9 +85,7 @@ const execScrapingManga = async (): Promise<NewArrivalList> => {
 };
 
 // 購読しているマンガのみを抽出する
-const getFilterdNewArrivalList = (
-  newArrivalList: NewArrivalList
-): NewArrivalList => {
+const filterNewArrivalList = (newArrivalList: NewArrival[]): NewArrival[] => {
   return newArrivalList.filter((newArrivaldata) =>
     // 購読しているマンガのタイトルが新入荷のマンガのタイトルに含まれているかチェック
     mySubScriptionTitleList.some((title) =>
@@ -94,8 +95,8 @@ const getFilterdNewArrivalList = (
 };
 
 // 新入荷リストをメール本文にフォーマット
-const formatFilterdNewArrivalListToMailText = (
-  newArrivalList: NewArrivalList
+const formatNewArrivalListToMailText = (
+  newArrivalList: NewArrival[]
 ): string => {
   if (newArrivalList.length) {
     return newArrivalList.reduce((previousValue, currentValue) => {
@@ -119,7 +120,7 @@ const getFormattedDate = () => {
 };
 
 // メールを送信
-const sendMail = async (newArrivalMailText: string) => {
+const sendNewArrivalMail = async (newArrivalMailText: string) => {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -147,7 +148,7 @@ export const scrapeManga = functions
     // 今月の新入荷一覧を取得
     const newArrivalList = await execScrapingManga();
     // 新入荷一覧から購読しているマンガのみ抽出
-    const filteredNewArrivalList = getFilterdNewArrivalList(newArrivalList);
+    const filteredNewArrivalList = filterNewArrivalList(newArrivalList);
     // 新入荷情報をメールで送信
-    sendMail(formatFilterdNewArrivalListToMailText(filteredNewArrivalList));
+    sendNewArrivalMail(formatNewArrivalListToMailText(filteredNewArrivalList));
   });
