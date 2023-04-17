@@ -34,7 +34,9 @@ const execScrapingManga = async (): Promise<NewArrival[]> => {
     const newArrivalDlElem = await page.$("dl");
 
     if (!newArrivalDlElem) {
-      break;
+      throw new Error(
+        "DL要素が見つかりませんでした。対象ページのDOMが変更されたようです。"
+      );
     }
 
     const newArrivalDtElems = await newArrivalDlElem.$$("dt");
@@ -145,10 +147,21 @@ export const scrapeManga = functions
   .pubsub.schedule("0 8 1 * *")
   .timeZone("Asia/Tokyo")
   .onRun(async () => {
-    // 今月の新入荷一覧を取得
-    const newArrivalList = await execScrapingManga();
-    // 新入荷一覧から購読しているマンガのみ抽出
-    const filteredNewArrivalList = filterNewArrivalList(newArrivalList);
-    // 新入荷情報をメールで送信
-    sendNewArrivalMail(formatNewArrivalListToMailText(filteredNewArrivalList));
+    try {
+      // 今月の新入荷一覧を取得
+      const newArrivalList = await execScrapingManga();
+      // 新入荷一覧から購読しているマンガのみ抽出
+      const filteredNewArrivalList = filterNewArrivalList(newArrivalList);
+      // 新入荷情報をメールで送信
+      sendNewArrivalMail(
+        formatNewArrivalListToMailText(filteredNewArrivalList)
+      );
+    } catch (e: any) {
+      console.error(e);
+      if (e.message) {
+        sendNewArrivalMail(e.message);
+      } else {
+        sendNewArrivalMail("何か問題が発生しました。ログを確認してください。");
+      }
+    }
   });
