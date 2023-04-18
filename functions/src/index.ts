@@ -29,8 +29,8 @@ const execScrapingManga = async (): Promise<NewArrival[]> => {
   const page = await browser.newPage();
   await page.goto("https://www.navi-comi.com/20488/arrival-list/");
 
+  // 次のページがなくなるまでスクレイピングを繰り返す
   while (true) {
-    // スクレイピング
     const newArrivalDlElem = await page.$("dl");
 
     if (!newArrivalDlElem) {
@@ -48,17 +48,17 @@ const execScrapingManga = async (): Promise<NewArrival[]> => {
       ).jsonValue();
 
       const ddTtile = await newArrivalDdElems[i].$("div.title");
-      if (ddTtile) {
-        const mangaTitle = await (
-          await ddTtile.getProperty("textContent")
-        ).jsonValue();
 
-        // 入荷日とタイトルのみ取得してまとめる
-        newArrivalList.push({
-          arrivalDate: arrivalDate,
-          mangaTitle: mangaTitle,
-        });
-      }
+      if (!ddTtile) continue;
+
+      const mangaTitle = await (
+        await ddTtile.getProperty("textContent")
+      ).jsonValue();
+
+      newArrivalList.push({
+        arrivalDate: arrivalDate,
+        mangaTitle: mangaTitle,
+      });
     }
 
     // 配下にstrong要素を持つli要素 = 現在のページを示すページネーションを取得
@@ -69,16 +69,16 @@ const execScrapingManga = async (): Promise<NewArrival[]> => {
     const nextPageElem = await currentPageElem.getProperty(
       "nextElementSibling"
     );
-    // 次のページへのリンク
+    // 次のページへのリンクを取得
     const nextPageLink = await nextPageElem.asElement()?.$("a");
 
-    // 次のページがなくなったらスクレイピング終了
+    // 次のページへのリンクがなくなったらスクレイピング終了
     if (!nextPageLink) {
       break;
     }
 
     // 次のページへ遷移
-    await Promise.all([page.waitForNavigation(), nextPageLink?.click()]);
+    await Promise.all([page.waitForNavigation(), nextPageLink.click()]);
   }
 
   await browser.close();
@@ -100,16 +100,15 @@ const filterNewArrivalList = (newArrivalList: NewArrival[]): NewArrival[] => {
 const formatNewArrivalListToMailText = (
   newArrivalList: NewArrival[]
 ): string => {
-  if (newArrivalList.length) {
-    return newArrivalList.reduce((previousValue, currentValue) => {
-      return (
-        previousValue +
-        `${currentValue.arrivalDate} ${currentValue.mangaTitle}\n`
-      );
-    }, `${config.store.name}}\n\n`);
-  } else {
-    return "今月は購読しているマンガの入荷はありません。";
+  if (!newArrivalList.length) {
+    return "今月は購読しているマンガの新入荷はありません。";
   }
+
+  return newArrivalList.reduce((previousValue, currentValue) => {
+    return (
+      previousValue + `${currentValue.arrivalDate} ${currentValue.mangaTitle}\n`
+    );
+  }, `${config.store.name}}\n\n`);
 };
 
 // 日付データ取得
@@ -122,7 +121,7 @@ const getFormattedDate = () => {
 };
 
 // メールを送信
-const sendNewArrivalMail = async (newArrivalMailText: string) => {
+const sendMail = async (mailText: string) => {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -135,7 +134,7 @@ const sendNewArrivalMail = async (newArrivalMailText: string) => {
     from: "マンガ新刊情報通知サービス",
     to: config.gmail.email_address,
     subject: `${getFormattedDate()}の新刊入荷情報`,
-    text: newArrivalMailText,
+    text: mailText,
   };
 
   await transporter.sendMail(mailOptions);
@@ -153,15 +152,13 @@ export const scrapeManga = functions
       // 新入荷一覧から購読しているマンガのみ抽出
       const filteredNewArrivalList = filterNewArrivalList(newArrivalList);
       // 新入荷情報をメールで送信
-      sendNewArrivalMail(
-        formatNewArrivalListToMailText(filteredNewArrivalList)
-      );
+      sendMail(formatNewArrivalListToMailText(filteredNewArrivalList));
     } catch (e: any) {
       console.error(e);
       if (e.message) {
-        sendNewArrivalMail(e.message);
+        sendMail(e.message);
       } else {
-        sendNewArrivalMail("何か問題が発生しました。ログを確認してください。");
+        sendMail("何か問題が発生しました。ログを確認してください。");
       }
     }
   });
