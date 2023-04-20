@@ -35,7 +35,7 @@ const execScrapingManga = async (): Promise<NewArrival[]> => {
 
     if (!newArrivalDlElem) {
       throw new Error(
-        "DL要素が見つかりませんでした。対象ページのDOMが変更されたようです。"
+        "DL要素が見つかりませんでした。対象ページが変更されたようです。"
       );
     }
 
@@ -121,7 +121,7 @@ const getFormattedDate = () => {
 };
 
 // メールを送信
-const sendMail = async (mailText: string) => {
+const sendMail = async (mailBody: string) => {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -134,7 +134,7 @@ const sendMail = async (mailText: string) => {
     from: "マンガ新刊情報通知サービス",
     to: config.gmail.email_address,
     subject: `${getFormattedDate()}の新刊入荷情報`,
-    text: mailText,
+    text: mailBody,
   };
 
   await transporter.sendMail(mailOptions);
@@ -152,13 +152,13 @@ export const scrapeManga = functions
       // 新入荷一覧から購読しているマンガのみ抽出
       const filteredNewArrivalList = filterNewArrivalList(newArrivalList);
       // 新入荷情報をメールで送信
-      sendMail(formatNewArrivalListToMailText(filteredNewArrivalList));
+      await sendMail(formatNewArrivalListToMailText(filteredNewArrivalList));
     } catch (e: any) {
       console.error(e);
-      if (e.message) {
-        sendMail(e.message);
+      if (e instanceof Error) {
+        await sendMail(`An error occurred: ${e.message}`);
       } else {
-        sendMail("何か問題が発生しました。ログを確認してください。");
+        await sendMail(`An error occurred: ${JSON.stringify(e)}`);
       }
     }
   });
