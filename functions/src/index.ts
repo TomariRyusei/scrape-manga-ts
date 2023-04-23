@@ -112,7 +112,7 @@ const formatNewArrivalListToMailText = (
 };
 
 // 日付データ取得
-const getFormattedDate = () => {
+export const getFormattedDate = () => {
   const japanLocaleString = new Date().toLocaleString("ja-JP", {
     year: "numeric",
     month: "long",

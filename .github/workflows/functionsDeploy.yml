@@ -1,4 +1,4 @@
-name: Firebase Deploy
+name: Firebase Deploy and Test
 
 on:
   push:
@@ -19,7 +19,10 @@ jobs:
           cache-dependency-path: functions/package-lock.json
       - name: Install Dependencies
         run: npm install -C functions
+      - name: Run tests
+        run: npm run test
       - name: Deploy to Firebase
+        if: ${{ job.status == 'success' }}
         uses: w9jds/firebase-action@master
         with:
           args: deploy --only functions
