@@ -11,8 +11,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          submodules: true
       - name: Setup node
         uses: actions/setup-node@v3
         with:
@@ -22,7 +20,7 @@ jobs:
       - name: Install Dependencies
         run: npm install -C functions
       - name: Run tests
-        run: npm run test
+        run: npm run test -C functions
       - name: Deploy to Firebase
         if: ${{ job.status == 'success' }}
         uses: w9jds/firebase-action@master
