@@ -87,7 +87,9 @@ const execScrapingManga = async (): Promise<NewArrival[]> => {
 };
 
 // 購読しているマンガのみを抽出する
-const filterNewArrivalList = (newArrivalList: NewArrival[]): NewArrival[] => {
+export const filterNewArrivalList = (
+  newArrivalList: NewArrival[]
+): NewArrival[] => {
   return newArrivalList.filter((newArrivaldata) =>
     // 購読しているマンガのタイトルが新入荷のマンガのタイトルに含まれているかチェック
     mySubScriptionTitleList.some((title) =>
