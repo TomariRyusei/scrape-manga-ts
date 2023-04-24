@@ -4,9 +4,9 @@ import * as nodemailer from "nodemailer";
 
 import { mySubScriptionTitleList } from "./myMangaList";
 
-const config = functions.config();
+export const config = functions.config();
 
-type NewArrival = {
+export type NewArrival = {
   arrivalDate: string | null;
   mangaTitle: string | null;
 };
@@ -97,7 +97,7 @@ const filterNewArrivalList = (newArrivalList: NewArrival[]): NewArrival[] => {
 };
 
 // 新入荷リストをメール本文にフォーマット
-const formatNewArrivalListToMailText = (
+export const formatNewArrivalListToMailText = (
   newArrivalList: NewArrival[]
 ): string => {
   if (!newArrivalList.length) {
@@ -108,7 +108,7 @@ const formatNewArrivalListToMailText = (
     return (
       previousValue + `${currentValue.arrivalDate} ${currentValue.mangaTitle}\n`
     );
-  }, `${config.store.name}}\n\n`);
+  }, "");
 };
 
 // 日付データ取得
@@ -122,6 +122,8 @@ export const getFormattedDate = () => {
 
 // メールを送信
 const sendMail = async (mailBody: string) => {
+  const storeName = config.store.name;
+
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -134,7 +136,7 @@ const sendMail = async (mailBody: string) => {
     from: "マンガ新刊情報通知サービス",
     to: config.gmail.email_address,
     subject: `${getFormattedDate()}の新刊入荷情報`,
-    text: mailBody,
+    text: `${storeName}}\n\n${mailBody}`,
   };
 
   await transporter.sendMail(mailOptions);
