@@ -15,4 +15,5 @@ export const mySubScriptionTitleList = [
   "銭麻",
   "ケーキの切れない非行少年たち",
   "呪術廻戦",
+  "こういうのがいい",
 ];
