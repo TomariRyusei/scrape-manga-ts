@@ -138,7 +138,7 @@ const sendMail = async (mailBody: string) => {
     from: "マンガ新刊情報通知サービス",
     to: config.gmail.email_address,
     subject: `${getFormattedDate()}の新刊入荷情報`,
-    text: `${storeName}}\n\n${mailBody}`,
+    text: `${storeName}\n\n${mailBody}`,
   };
 
   await transporter.sendMail(mailOptions);
