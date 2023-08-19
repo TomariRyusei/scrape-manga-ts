@@ -18,4 +18,5 @@ export const mySubScriptionTitleList = [
   "イリオス",
   "ここは今から倫理です。",
   "アンダーニンジャ",
+  "新しいきみへ",
 ];
