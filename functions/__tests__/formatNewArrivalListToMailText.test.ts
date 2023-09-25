@@ -1,4 +1,4 @@
-import { formatNewArrivalListToMailText, NewArrival } from "../src/index";
+import { formatSubscribingTitlesToMailText, NewArrival } from "../src/index";
 
 describe("formatNewArrivalListToMailText", () => {
   const newArrivalList: NewArrival[] = [
@@ -9,12 +9,12 @@ describe("formatNewArrivalListToMailText", () => {
 
   it("returns a message for an empty list", () => {
     const emptyList: NewArrival[] = [];
-    const result = formatNewArrivalListToMailText(emptyList);
+    const result = formatSubscribingTitlesToMailText(emptyList);
     expect(result).toBe("今月は購読しているマンガの新入荷はありません。");
   });
 
   it("formats the new arrival list to mail text", () => {
-    const result = formatNewArrivalListToMailText(newArrivalList);
+    const result = formatSubscribingTitlesToMailText(newArrivalList);
     expect(result).toBe(
       `2023-04-01 呪術廻戦\n2023-04-02 ダーウィン事変\n2023-04-03 九条の大罪\n`
     );

@@ -1,4 +1,7 @@
-import { filterNewArrivalList, NewArrival } from "../src/index";
+import {
+  getSubscribingTitlesFromAllNewArrivals,
+  NewArrival,
+} from "../src/index";
 
 describe("filterNewArrivalList", () => {
   const arrivalList: NewArrival[] = [
@@ -9,7 +12,7 @@ describe("filterNewArrivalList", () => {
   ];
 
   it("should filter out non-subscribed manga titles", () => {
-    const result = filterNewArrivalList(arrivalList);
+    const result = getSubscribingTitlesFromAllNewArrivals(arrivalList);
     expect(result).toHaveLength(3);
     expect(result).toContainEqual({
       arrivalDate: "2022-04-22",
@@ -26,7 +29,7 @@ describe("filterNewArrivalList", () => {
   });
 
   it("should return an empty array if all manga titles are non-subscribed", () => {
-    const result = filterNewArrivalList([
+    const result = getSubscribingTitlesFromAllNewArrivals([
       { arrivalDate: "2022-04-22", mangaTitle: "アオシマン" },
       { arrivalDate: "2022-04-22", mangaTitle: "シンカリオン" },
     ]);
@@ -34,7 +37,7 @@ describe("filterNewArrivalList", () => {
   });
 
   it("should return an empty array if the input array is empty", () => {
-    const result = filterNewArrivalList([]);
+    const result = getSubscribingTitlesFromAllNewArrivals([]);
     expect(result).toHaveLength(0);
   });
 });
