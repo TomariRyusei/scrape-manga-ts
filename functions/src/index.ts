@@ -2,7 +2,7 @@ import * as functions from "firebase-functions";
 import puppeteer from "puppeteer";
 import * as nodemailer from "nodemailer";
 
-import { mySubScriptionTitleList } from "./myMangaList";
+import { mySubscribingTitles } from "./mySubscribingTitles";
 
 export const config = functions.config();
 
@@ -11,9 +11,9 @@ export type NewArrival = {
   mangaTitle: string | null;
 };
 
-const execScrapingManga = async (): Promise<NewArrival[]> => {
+const getAllNewArrivals = async (): Promise<NewArrival[]> => {
   // 全新入荷マンガ情報を格納する配列
-  const newArrivalList: NewArrival[] = [];
+  const newArrivals: NewArrival[] = [];
   const browser = await puppeteer.launch({
     headless: true,
     args: [
@@ -55,7 +55,7 @@ const execScrapingManga = async (): Promise<NewArrival[]> => {
         await ddTtile.getProperty("textContent")
       ).jsonValue();
 
-      newArrivalList.push({
+      newArrivals.push({
         arrivalDate: arrivalDate,
         mangaTitle: mangaTitle,
       });
@@ -83,30 +83,28 @@ const execScrapingManga = async (): Promise<NewArrival[]> => {
 
   await browser.close();
 
-  return newArrivalList;
+  return newArrivals;
 };
 
 // 購読しているマンガのみを抽出する
-export const filterNewArrivalList = (
-  newArrivalList: NewArrival[]
+export const getSubscribingTitlesFromAllNewArrivals = (
+  newArrivals: NewArrival[]
 ): NewArrival[] => {
-  return newArrivalList.filter((newArrivaldata) =>
+  return newArrivals.filter((newArrival) =>
     // 購読しているマンガのタイトルが新入荷のマンガのタイトルに含まれているかチェック
-    mySubScriptionTitleList.some((title) =>
-      newArrivaldata.mangaTitle?.includes(title)
-    )
+    mySubscribingTitles.some((title) => newArrival.mangaTitle?.includes(title))
   );
 };
 
 // 新入荷リストをメール本文にフォーマット
-export const formatNewArrivalListToMailText = (
-  newArrivalList: NewArrival[]
+export const formatSubscribingTitlesToMailText = (
+  newArrivals: NewArrival[]
 ): string => {
-  if (!newArrivalList.length) {
+  if (!newArrivals.length) {
     return "今月は購読しているマンガの新入荷はありません。";
   }
 
-  return newArrivalList.reduce((previousValue, currentValue) => {
+  return newArrivals.reduce((previousValue, currentValue) => {
     return (
       previousValue + `${currentValue.arrivalDate} ${currentValue.mangaTitle}\n`
     );
@@ -152,11 +150,12 @@ export const scrapeManga = functions
   .onRun(async () => {
     try {
       // 今月の新入荷一覧を取得
-      const newArrivalList = await execScrapingManga();
+      const allNewArrivals = await getAllNewArrivals();
       // 新入荷一覧から購読しているマンガのみ抽出
-      const filteredNewArrivalList = filterNewArrivalList(newArrivalList);
+      const subscribingTitles =
+        getSubscribingTitlesFromAllNewArrivals(allNewArrivals);
       // 新入荷情報をメールで送信
-      await sendMail(formatNewArrivalListToMailText(filteredNewArrivalList));
+      await sendMail(formatSubscribingTitlesToMailText(subscribingTitles));
     } catch (e: any) {
       console.error(e);
       if (e instanceof Error) {

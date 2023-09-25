@@ -1,4 +1,4 @@
-export const mySubScriptionTitleList = [
+export const mySubscribingTitles = [
   "おかえりアリス",
   "夏目アラタの結婚",
   "健康で文化的な最低限度の生活",
