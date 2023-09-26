@@ -12,7 +12,6 @@ export type NewArrival = {
 };
 
 const getAllNewArrivals = async (): Promise<NewArrival[]> => {
-  // 全新入荷マンガ情報を格納する配列
   const newArrivals: NewArrival[] = [];
   const browser = await puppeteer.launch({
     headless: true,
@@ -23,7 +22,7 @@ const getAllNewArrivals = async (): Promise<NewArrival[]> => {
       "--no-first-run",
       "--no-sandbox",
       "--no-zygote",
-      "--single-process", // <- this one doesn't works in Windows
+      "--single-process",
     ],
   });
   const page = await browser.newPage();
@@ -61,23 +60,18 @@ const getAllNewArrivals = async (): Promise<NewArrival[]> => {
       });
     }
 
-    // 配下にstrong要素を持つli要素 = 現在のページを示すページネーションを取得
     const [currentPageElem] = await page.$x(
       '//div[@id="list_footer"]/div/ul/li[strong]'
     );
-    // 現在のページを示すページネーションの次のli要素を取得
     const nextPageElem = await currentPageElem.getProperty(
       "nextElementSibling"
     );
-    // 次のページへのリンクを取得
     const nextPageLink = await nextPageElem.asElement()?.$("a");
 
-    // 次のページへのリンクがなくなったらスクレイピング終了
     if (!nextPageLink) {
       break;
     }
 
-    // 次のページへ遷移
     await Promise.all([page.waitForNavigation(), nextPageLink.click()]);
   }
 
@@ -86,17 +80,14 @@ const getAllNewArrivals = async (): Promise<NewArrival[]> => {
   return newArrivals;
 };
 
-// 購読しているマンガのみを抽出する
 export const getSubscribingTitlesFromAllNewArrivals = (
   newArrivals: NewArrival[]
 ): NewArrival[] => {
   return newArrivals.filter((newArrival) =>
-    // 購読しているマンガのタイトルが新入荷のマンガのタイトルに含まれているかチェック
     mySubscribingTitles.some((title) => newArrival.mangaTitle?.includes(title))
   );
 };
 
-// 新入荷リストをメール本文にフォーマット
 export const formatSubscribingTitlesToMailText = (
   newArrivals: NewArrival[]
 ): string => {
@@ -111,7 +102,6 @@ export const formatSubscribingTitlesToMailText = (
   }, "");
 };
 
-// 日付データ取得
 export const getFormattedDate = () => {
   const japanLocaleString = new Date().toLocaleString("ja-JP", {
     year: "numeric",
@@ -120,7 +110,6 @@ export const getFormattedDate = () => {
   return japanLocaleString;
 };
 
-// メールを送信
 const sendMail = async (mailBody: string) => {
   const storeName = config.store.name;
 
@@ -149,12 +138,9 @@ export const scrapeManga = functions
   .timeZone("Asia/Tokyo")
   .onRun(async () => {
     try {
-      // 今月の新入荷一覧を取得
       const allNewArrivals = await getAllNewArrivals();
-      // 新入荷一覧から購読しているマンガのみ抽出
       const subscribingTitles =
         getSubscribingTitlesFromAllNewArrivals(allNewArrivals);
-      // 新入荷情報をメールで送信
       await sendMail(formatSubscribingTitlesToMailText(subscribingTitles));
     } catch (e: any) {
       console.error(e);
