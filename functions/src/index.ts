@@ -11,6 +11,27 @@ export type NewArrival = {
   mangaTitle: string | null;
 };
 
+export const scrapeManga = functions
+  .runWith({ timeoutSeconds: 300, memory: "1GB" })
+  .region("asia-northeast1")
+  .pubsub.schedule("0 10 1 * *")
+  .timeZone("Asia/Tokyo")
+  .onRun(async () => {
+    try {
+      const allNewArrivals = await getAllNewArrivals();
+      const subscribingTitles =
+        getSubscribingTitlesFromAllNewArrivals(allNewArrivals);
+      await sendMail(formatSubscribingTitlesToMailText(subscribingTitles));
+    } catch (e: any) {
+      console.error(e);
+      if (e instanceof Error) {
+        await sendMail(`An error occurred: ${e.message}`);
+      } else {
+        await sendMail(`An error occurred: ${JSON.stringify(e)}`);
+      }
+    }
+  });
+
 const getAllNewArrivals = async (): Promise<NewArrival[]> => {
   const newArrivals: NewArrival[] = [];
   const browser = await puppeteer.launch({
@@ -130,24 +151,3 @@ const sendMail = async (mailBody: string) => {
 
   await transporter.sendMail(mailOptions);
 };
-
-export const scrapeManga = functions
-  .runWith({ timeoutSeconds: 300, memory: "1GB" })
-  .region("asia-northeast1")
-  .pubsub.schedule("0 10 1 * *")
-  .timeZone("Asia/Tokyo")
-  .onRun(async () => {
-    try {
-      const allNewArrivals = await getAllNewArrivals();
-      const subscribingTitles =
-        getSubscribingTitlesFromAllNewArrivals(allNewArrivals);
-      await sendMail(formatSubscribingTitlesToMailText(subscribingTitles));
-    } catch (e: any) {
-      console.error(e);
-      if (e instanceof Error) {
-        await sendMail(`An error occurred: ${e.message}`);
-      } else {
-        await sendMail(`An error occurred: ${JSON.stringify(e)}`);
-      }
-    }
-  });
