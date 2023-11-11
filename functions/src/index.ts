@@ -1,10 +1,10 @@
 import * as functions from "firebase-functions";
 import puppeteer from "puppeteer";
+import axios from "axios";
+import * as FormData from "form-data";
 import * as nodemailer from "nodemailer";
 
-import { mySubscribingTitles } from "./mySubscribingTitles";
-
-export const config = functions.config();
+import { mySubscriptions } from "./mySubscriptions";
 
 export type NewArrival = {
   arrivalDate: string | null;
@@ -12,7 +12,11 @@ export type NewArrival = {
 };
 
 export const scrapeManga = functions
-  .runWith({ timeoutSeconds: 300, memory: "1GB" })
+  .runWith({
+    timeoutSeconds: 300,
+    memory: "1GB",
+    secrets: ["LINE_ACCESS_TOKEN", "MAIL_ADDRESS", "MAIL_SERVICE_PASSWORD"],
+  })
   .region("asia-northeast1")
   .pubsub.schedule("0 10 1 * *")
   .timeZone("Asia/Tokyo")
@@ -21,13 +25,13 @@ export const scrapeManga = functions
       const allNewArrivals = await getAllNewArrivals();
       const subscribingTitles =
         getSubscribingTitlesFromAllNewArrivals(allNewArrivals);
-      await sendMail(formatSubscribingTitlesToMailText(subscribingTitles));
+      const message = formatSubscriptionsForMessage(subscribingTitles);
+      await notifyLINE(`\n${getFormattedDate()}の新刊入荷情報\n\n${message}`);
     } catch (e: any) {
-      console.error(e);
-      if (e instanceof Error) {
-        await sendMail(`An error occurred: ${e.message}`);
+      if (axios.isAxiosError(e)) {
+        await sendMail("LINE APIとの通信でエラーが発生しました", e.message);
       } else {
-        await sendMail(`An error occurred: ${JSON.stringify(e)}`);
+        await notifyLINE(`\nサーバーでエラーが発生しました。\n\n${e.message}`);
       }
     }
   });
@@ -105,11 +109,11 @@ export const getSubscribingTitlesFromAllNewArrivals = (
   newArrivals: NewArrival[]
 ): NewArrival[] => {
   return newArrivals.filter((newArrival) =>
-    mySubscribingTitles.some((title) => newArrival.mangaTitle?.includes(title))
+    mySubscriptions.some((title) => newArrival.mangaTitle?.includes(title))
   );
 };
 
-export const formatSubscribingTitlesToMailText = (
+export const formatSubscriptionsForMessage = (
   newArrivals: NewArrival[]
 ): string => {
   if (!newArrivals.length) {
@@ -131,22 +135,34 @@ export const getFormattedDate = () => {
   return japanLocaleString;
 };
 
-const sendMail = async (mailBody: string) => {
-  const storeName = config.store.name;
+const notifyLINE = async (message: string) => {
+  const LINE_NOTIFY_API_URL = "https://notify-api.line.me/api/notify";
 
+  const formData = new FormData();
+  formData.append("message", message);
+
+  const headers = {
+    Authorization: `Bearer ${process.env.LINE_ACCESS_TOKEN}`,
+    "Content-Type": "application/x-www-form-urlencoded",
+  };
+
+  await axios.post(LINE_NOTIFY_API_URL, formData, { headers });
+};
+
+const sendMail = async (subject: string, mailBody: string) => {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: config.gmail.email_address,
-      pass: config.gmail.password,
+      user: process.env.MAIL_ADDRESS,
+      pass: process.env.MAIL_SERVICE_PASSWORD,
     },
   });
 
   const mailOptions = {
-    from: "マンガ新刊情報通知サービス",
-    to: config.gmail.email_address,
-    subject: `${getFormattedDate()}の新刊入荷情報`,
-    text: `${storeName}\n\n${mailBody}`,
+    from: "scrape-manga",
+    to: process.env.MAIL_ADDRESS,
+    subject: subject,
+    text: mailBody,
   };
 
   await transporter.sendMail(mailOptions);
