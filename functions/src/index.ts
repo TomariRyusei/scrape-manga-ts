@@ -4,7 +4,7 @@ import axios from "axios";
 import * as FormData from "form-data";
 import * as nodemailer from "nodemailer";
 
-import { mySubscriptions } from "./mySubscriptions";
+import { mySubscriptionList } from "./mySubscriptionList";
 
 export type NewArrival = {
   arrivalDate: string | null;
@@ -23,8 +23,10 @@ export const scrapeManga = functions
   .onRun(async () => {
     try {
       const allNewArrivals = await getAllNewArrivals();
-      const subscribingTitles =
-        getSubscribingTitlesFromAllNewArrivals(allNewArrivals);
+      const subscribingTitles = getSubscribingTitlesFromAllNewArrivals(
+        allNewArrivals,
+        mySubscriptionList
+      );
       const message = formatSubscriptionsForMessage(subscribingTitles);
       await notifyLINE(`\n${getFormattedDate()}の新刊入荷情報\n\n${message}`);
     } catch (e: any) {
@@ -107,10 +109,11 @@ const getAllNewArrivals = async (): Promise<NewArrival[]> => {
 };
 
 export const getSubscribingTitlesFromAllNewArrivals = (
-  newArrivals: NewArrival[]
+  newArrivals: NewArrival[],
+  subscriptionList: string[]
 ): NewArrival[] => {
   return newArrivals.filter((newArrival) =>
-    mySubscriptions.some((title) => newArrival.mangaTitle?.includes(title))
+    subscriptionList.some((title) => newArrival.mangaTitle?.includes(title))
   );
 };
 
