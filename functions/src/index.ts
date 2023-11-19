@@ -28,6 +28,7 @@ export const scrapeManga = functions
       const message = formatSubscriptionsForMessage(subscribingTitles);
       await notifyLINE(`\n${getFormattedDate()}の新刊入荷情報\n\n${message}`);
     } catch (e: any) {
+      console.error(e);
       if (axios.isAxiosError(e)) {
         await sendMail("LINE APIとの通信でエラーが発生しました", e.message);
       } else {
