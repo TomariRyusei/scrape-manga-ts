@@ -5,8 +5,8 @@ import {
 
 describe("filterNewArrivalList", () => {
   const arrivalList: NewArrival[] = [
-    { arrivalDate: "2022-04-22", mangaTitle: "おかえりアリス" },
-    { arrivalDate: "2022-04-22", mangaTitle: "夏目アラタの結婚" },
+    { arrivalDate: "2022-04-22", mangaTitle: "九条の大罪" },
+    { arrivalDate: "2022-04-22", mangaTitle: "イリオス" },
     { arrivalDate: "2022-04-22", mangaTitle: "健康で文化的な最低限度の生活" },
     { arrivalDate: "2022-04-22", mangaTitle: "アオシマン" },
   ];
