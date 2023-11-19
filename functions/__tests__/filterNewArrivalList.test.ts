@@ -16,11 +16,11 @@ describe("filterNewArrivalList", () => {
     expect(result).toHaveLength(3);
     expect(result).toContainEqual({
       arrivalDate: "2022-04-22",
-      mangaTitle: "おかえりアリス",
+      mangaTitle: "九条の大罪",
     });
     expect(result).toContainEqual({
       arrivalDate: "2022-04-22",
-      mangaTitle: "夏目アラタの結婚",
+      mangaTitle: "イリオス",
     });
     expect(result).toContainEqual({
       arrivalDate: "2022-04-22",
