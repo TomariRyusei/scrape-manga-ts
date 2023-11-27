@@ -14,7 +14,7 @@ describe("notifyLINE", () => {
 
     const axiosPostMock = jest
       .spyOn(axios, "post")
-      .mockResolvedValue({ data: "success" });
+      .mockResolvedValue({ status: 200 });
 
     await notifyLINE(message);
 
