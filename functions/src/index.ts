@@ -139,7 +139,7 @@ export const getFormattedDate = () => {
   return japanLocaleString;
 };
 
-const notifyLINE = async (message: string) => {
+export const notifyLINE = async (message: string) => {
   const LINE_NOTIFY_API_URL = "https://notify-api.line.me/api/notify";
 
   const formData = new FormData();
@@ -153,7 +153,7 @@ const notifyLINE = async (message: string) => {
   await axios.post(LINE_NOTIFY_API_URL, formData, { headers });
 };
 
-const sendMail = async (subject: string, mailBody: string) => {
+export const sendMail = async (subject: string, mailBody: string) => {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
