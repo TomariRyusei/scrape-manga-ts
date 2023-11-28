@@ -28,5 +28,7 @@ describe("notifyLINE", () => {
         },
       }
     );
+
+    axiosPostMock.mockRestore();
   });
 });

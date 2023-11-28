@@ -28,5 +28,7 @@ describe("should send a mail", () => {
       subject: "Test Subject",
       text: "Test Body",
     });
+
+    createTransportMock.mockRestore();
   });
 });
