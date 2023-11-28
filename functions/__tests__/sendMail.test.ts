@@ -11,20 +11,18 @@ describe("should send a mail", () => {
     process.env.MAIL_ADDRESS = "test@example.com";
     process.env.MAIL_SERVICE_PASSWORD = "testPassword";
 
-    const sendMailMock = jest.fn().mockResolvedValue({ messageId: "12345" });
-
-    // nodemailer.createTransportをモックし、そのモックのsendMailメソッドがsendMailMockを呼ぶように設定
-    (
-      nodemailer.createTransport as jest.MockedFunction<
-        typeof nodemailer.createTransport
-      >
-    ).mockReturnValue({
-      sendMail: sendMailMock,
-    } as any);
+    const createTransportMock = jest
+      .spyOn(nodemailer, "createTransport")
+      .mockReturnValue({
+        sendMail: jest.fn().mockResolvedValueOnce({ messageId: "12345" }),
+      } as any);
 
     await sendMail(subject, mailBody);
 
-    expect(sendMailMock).toHaveBeenCalledWith({
+    expect(createTransportMock).toHaveBeenCalled();
+    expect(
+      createTransportMock.mock.results[0].value.sendMail
+    ).toHaveBeenCalledWith({
       from: "scrape-manga",
       to: "test@example.com",
       subject: "Test Subject",
