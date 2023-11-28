@@ -3,6 +3,7 @@ import * as FormData from "form-data";
 import { notifyLINE } from "../src/index";
 
 jest.mock("axios");
+const mockAxios = jest.mocked(axios);
 
 describe("notifyLINE", () => {
   it("should send a message to LINE", async () => {
@@ -12,13 +13,11 @@ describe("notifyLINE", () => {
 
     process.env.LINE_ACCESS_TOKEN = LINE_ACCESS_TOKEN;
 
-    const axiosPostMock = jest
-      .spyOn(axios, "post")
-      .mockResolvedValue({ status: 200 });
+    mockAxios.post.mockResolvedValue({ status: 200 });
 
     await notifyLINE(message);
 
-    expect(axiosPostMock).toHaveBeenCalledWith(
+    expect(mockAxios.post).toHaveBeenCalledWith(
       LINE_NOTIFY_API_URL,
       expect.any(FormData),
       {
@@ -28,7 +27,5 @@ describe("notifyLINE", () => {
         },
       }
     );
-
-    axiosPostMock.mockRestore();
   });
 });
