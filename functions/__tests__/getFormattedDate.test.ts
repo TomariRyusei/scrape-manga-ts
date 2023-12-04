@@ -1,4 +1,4 @@
-import { getFormattedDate } from "../src/index";
+import { getFormattedDate } from "../src/utils/getFormattedDate";
 
 describe("getFormattedDate", () => {
   it("returns a string", () => {

@@ -1,5 +1,5 @@
 import * as nodemailer from "nodemailer";
-import { sendMail } from "../src/index";
+import { sendMail } from "../src/messenger/sendMail";
 
 jest.mock("nodemailer");
 const mockNodemailer = jest.mocked(nodemailer);

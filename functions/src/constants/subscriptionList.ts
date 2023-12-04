@@ -1,4 +1,4 @@
-export const mySubscriptionList = [
+export const subscriptionList = [
   "健康で文化的な最低限度の生活",
   "九条の大罪",
   "BORUTO",

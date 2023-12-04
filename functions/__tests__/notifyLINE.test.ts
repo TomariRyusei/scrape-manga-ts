@@ -1,6 +1,5 @@
 import axios from "axios";
-import * as FormData from "form-data";
-import { notifyLINE } from "../src/index";
+import { notifyLINE } from "../src/messenger/notifyLINE";
 
 jest.mock("axios");
 const mockAxios = jest.mocked(axios);
@@ -19,7 +18,7 @@ describe("notifyLINE", () => {
 
     expect(mockAxios.post).toHaveBeenCalledWith(
       LINE_NOTIFY_API_URL,
-      expect.any(FormData),
+      { message },
       {
         headers: {
           Authorization: `Bearer ${LINE_ACCESS_TOKEN}`,
