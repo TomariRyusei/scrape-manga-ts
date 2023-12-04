@@ -3,10 +3,12 @@ import puppeteer from "puppeteer";
 import { IScraper } from "./IScraper";
 import { NewArrival } from "../type";
 
-export class ScraperKaikatsuNishiki implements IScraper {
-  readonly storeName: string = "快活クラブ 名古屋錦店";
-  readonly url: string = "https://www.navi-comi.com/20774/arrival-list/";
-  newArrivals: NewArrival[] = [];
+export class ScraperKaikatsuClub implements IScraper {
+  newArrivals: NewArrival[];
+
+  constructor(readonly storeName: string, readonly url: string) {
+    this.newArrivals = [];
+  }
 
   async execute(): Promise<void> {
     const browser = await puppeteer.launch({

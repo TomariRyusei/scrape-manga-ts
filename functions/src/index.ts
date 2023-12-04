@@ -2,7 +2,7 @@ import * as functions from "firebase-functions";
 import axios from "axios";
 
 import { subscriptionList } from "./constants/subscriptionList";
-import { storeNames } from "./constants/storeNames";
+import { storeInfo } from "./constants/storeInfo";
 import { IScraper } from "./scraper/IScraper";
 import { ScraperFactpry } from "./factory/ScraperFactpry";
 import { getFormattedDate } from "./utils/getFormattedDate";
@@ -24,8 +24,8 @@ export const scrapeManga = functions
     let messageToSend: string[] = [];
 
     try {
-      for (const storeName of storeNames) {
-        const scraper: IScraper = ScraperFactpry.create(storeName);
+      for (const store of storeInfo) {
+        const scraper: IScraper = ScraperFactpry.create(store);
         await scraper.execute();
 
         const subscribingNewArrivals = getSubscribingNewArrivals(
@@ -34,7 +34,7 @@ export const scrapeManga = functions
         );
 
         const message = formatSubscribingNewArrivalsForMessage(
-          storeName,
+          store.name,
           subscribingNewArrivals
         );
         messageToSend.push(message);
