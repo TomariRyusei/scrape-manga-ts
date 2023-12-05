@@ -1,13 +1,11 @@
 import * as functions from "firebase-functions";
 import axios from "axios";
 
-import { subscriptionList } from "./constants/subscriptionList";
 import { storeInfo } from "./constants/storeInfo";
 import { IScraper } from "./scraper/IScraper";
 import { ScraperFactpry } from "./factory/ScraperFactpry";
+import { NewArrivalPresantater } from "./presentater/NewArrivalPresantater";
 import { getFormattedDate } from "./utils/getFormattedDate";
-import { getSubscribingNewArrivals } from "./utils/getSubscribingNewArrivals";
-import { formatSubscribingNewArrivalsForMessage } from "./utils/formatSubscribingNewArrivalsForMessage";
 import { notifyLINE } from "./messenger/notifyLINE";
 import { sendMail } from "./messenger/sendMail";
 
@@ -28,15 +26,11 @@ export const scrapeManga = functions
         const scraper: IScraper = ScraperFactpry.create(store);
         await scraper.execute();
 
-        const subscribingNewArrivals = getSubscribingNewArrivals(
+        const presentater = new NewArrivalPresantater(
           scraper.newArrivals,
-          subscriptionList
+          scraper.storeName
         );
-
-        const message = formatSubscribingNewArrivalsForMessage(
-          store.name,
-          subscribingNewArrivals
-        );
+        const message = presentater.format();
         messageToSend.push(message);
       }
       await notifyLINE(
