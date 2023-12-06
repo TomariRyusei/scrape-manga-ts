@@ -26,10 +26,7 @@ export const scrapeManga = functions
         const scraper: IScraper = ScraperFactpry.create(store);
         await scraper.execute();
 
-        const presentater = new NewArrivalPresantater(
-          scraper.newArrivals,
-          scraper.storeName
-        );
+        const presentater = new NewArrivalPresantater(scraper);
         const message = presentater.format();
         messageToSend.push(message);
       }

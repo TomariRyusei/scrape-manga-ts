@@ -1,15 +1,15 @@
-import { NewArrival } from "../src/type";
 import { NewArrivalPresantater } from "../src/presentater/NewArrivalPresantater";
+import { ScraperKaikatsuClub } from "../src/scraper/ScraperKaikatsuClub";
 
 describe("NewArrivalPresantater", () => {
   it("should format subscribing new arrivals message correctly", () => {
-    const newArrivals: NewArrival[] = [
+    const scraper = new ScraperKaikatsuClub("Test Store", "https://test.com");
+    scraper.newArrivals = [
       { mangaTitle: "九条の大罪", arrivalDate: "2023-01-01" },
       { mangaTitle: "イリオス", arrivalDate: "2023-01-02" },
     ];
-    const storeName = "Test Store";
 
-    const presenter = new NewArrivalPresantater(newArrivals, storeName);
+    const presenter = new NewArrivalPresantater(scraper);
 
     const expectedMessage =
       "Test Store\n2023-01-01 九条の大罪\n2023-01-02 イリオス\n";
@@ -19,12 +19,12 @@ describe("NewArrivalPresantater", () => {
   });
 
   it("should handle case when there are no subscribing new arrivals", () => {
-    const newArrivals: NewArrival[] = [
+    const scraper = new ScraperKaikatsuClub("Test Store", "https://test.com");
+    scraper.newArrivals = [
       { mangaTitle: "Non-subscribed Manga", arrivalDate: "2023-01-01" },
     ];
-    const storeName = "Test Store";
 
-    const presenter = new NewArrivalPresantater(newArrivals, storeName);
+    const presenter = new NewArrivalPresantater(scraper);
 
     const expectedMessage =
       "Test Store\n\n今月は購読しているマンガの新入荷はありません。";

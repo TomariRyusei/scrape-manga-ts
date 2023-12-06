@@ -1,8 +1,9 @@
 import { NewArrival } from "../type";
 import { subscriptionList } from "../constants/subscriptionList";
+import { IScraper } from "../scraper/IScraper";
 
 export class NewArrivalPresantater {
-  constructor(private newArrivals: NewArrival[], private storeName: string) {}
+  constructor(private scraper: IScraper) {}
 
   format(): string {
     const subscribingNewArrivals = this.getSubscribingNewArrivals();
@@ -10,7 +11,7 @@ export class NewArrivalPresantater {
   }
 
   private getSubscribingNewArrivals(): NewArrival[] {
-    return this.newArrivals.filter((newArrival) =>
+    return this.scraper.newArrivals.filter((newArrival) =>
       subscriptionList.some((title) => newArrival.mangaTitle?.includes(title))
     );
   }
@@ -19,7 +20,7 @@ export class NewArrivalPresantater {
     subscribingNewArrivals: NewArrival[]
   ): string {
     if (!subscribingNewArrivals.length) {
-      return `${this.storeName}\n\n今月は購読しているマンガの新入荷はありません。`;
+      return `${this.scraper.storeName}\n\n今月は購読しているマンガの新入荷はありません。`;
     }
 
     return subscribingNewArrivals.reduce((previousValue, currentValue) => {
@@ -27,6 +28,6 @@ export class NewArrivalPresantater {
         previousValue +
         `${currentValue.arrivalDate} ${currentValue.mangaTitle}\n`
       );
-    }, `${this.storeName}\n`);
+    }, `${this.scraper.storeName}\n`);
   }
 }
