@@ -12,7 +12,7 @@ describe("NewArrivalPresantater", () => {
     const presenter = new NewArrivalPresantater(scraper);
 
     const expectedMessage =
-      "Test Store\n2023-01-01 九条の大罪\n2023-01-02 イリオス\n";
+      "【Test Store】\n2023-01-01 九条の大罪\n2023-01-02 イリオス\n";
 
     const result = presenter.format();
     expect(result).toEqual(expectedMessage);
@@ -27,7 +27,7 @@ describe("NewArrivalPresantater", () => {
     const presenter = new NewArrivalPresantater(scraper);
 
     const expectedMessage =
-      "Test Store\n\n今月は購読しているマンガの新入荷はありません。";
+      "【Test Store】\n\n今月は購読しているマンガの新入荷はありません。";
 
     const result = presenter.format();
     expect(result).toEqual(expectedMessage);
