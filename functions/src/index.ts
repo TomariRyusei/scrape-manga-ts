@@ -19,7 +19,7 @@ export const scrapeManga = functions
   .pubsub.schedule("0 10 1 * *")
   .timeZone("Asia/Tokyo")
   .onRun(async () => {
-    let messageToSend: string[] = [];
+    let messagelist: string[] = [];
 
     try {
       for (const store of storeInfo) {
@@ -27,18 +27,16 @@ export const scrapeManga = functions
         await scraper.execute();
 
         const presentater = new NewArrivalPresantater(scraper);
-        const message = presentater.format();
-        messageToSend.push(message);
+        const formattedNewArrivalList = presentater.format();
+        messagelist.push(formattedNewArrivalList);
       }
       await notifyLINE(
-        `\n\n${getFormattedDate()}の新刊入荷情報\n\n${messageToSend.join(
-          "\n\n"
-        )}`
+        `\n\n${getFormattedDate()}の新刊入荷情報\n\n${messagelist.join("\n\n")}`
       );
     } catch (e: any) {
       console.error(e);
       if (axios.isAxiosError(e)) {
-        await sendMail("\nLINE APIとの通信でエラーが発生しました", e.message);
+        await sendMail("\nLINE APIとの通信でエラーが発生しました\n", e.message);
       } else {
         await notifyLINE(
           `\n\nサーバーでエラーが発生しました。\n\n${e.message}`

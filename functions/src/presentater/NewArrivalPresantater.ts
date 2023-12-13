@@ -20,7 +20,7 @@ export class NewArrivalPresantater {
     subscribingNewArrivals: NewArrival[]
   ): string {
     if (!subscribingNewArrivals.length) {
-      return `${this.scraper.storeName}\n\n今月は購読しているマンガの新入荷はありません。`;
+      return `【${this.scraper.storeName}】\n\n今月は購読しているマンガの新入荷はありません。`;
     }
 
     return subscribingNewArrivals.reduce((previousValue, currentValue) => {
@@ -28,6 +28,6 @@ export class NewArrivalPresantater {
         previousValue +
         `${currentValue.arrivalDate} ${currentValue.mangaTitle}\n`
       );
-    }, `${this.scraper.storeName}\n`);
+    }, `【${this.scraper.storeName}】\n`);
   }
 }
