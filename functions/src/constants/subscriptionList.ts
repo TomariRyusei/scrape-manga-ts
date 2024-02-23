@@ -5,12 +5,10 @@ export const subscriptionList = [
   "彼岸島",
   "GANTZ:E",
   "ダーウィン事変",
-  "JUMBO MAX",
   "GIGANTIS－ジャイガンティス－",
   "ヒソカニアサレ",
   "銭麻",
   "ケーキの切れない非行少年たち",
   "呪術廻戦",
   "イリオス",
-  "アンダーニンジャ",
 ];
