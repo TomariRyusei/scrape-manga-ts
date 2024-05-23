@@ -1,4 +1,4 @@
-import * as functions from "firebase-functions";
+import * as functions from "firebase-functions/v1";
 import axios from "axios";
 
 import { storeInfo } from "./constants/storeInfo";
@@ -30,17 +30,13 @@ export const scrapeManga = functions
         const formattedNewArrivalList = presentater.format();
         messagelist.push(formattedNewArrivalList);
       }
-      await notifyLINE(
-        `\n\n${getFormattedDate()}の新刊入荷情報\n\n${messagelist.join("\n\n")}`
-      );
+      await notifyLINE(`\n\n${getFormattedDate()}の新刊入荷情報\n\n${messagelist.join("\n\n")}`);
     } catch (e: any) {
       console.error(e);
       if (axios.isAxiosError(e)) {
         await sendMail("\nLINE APIとの通信でエラーが発生しました\n", e.message);
       } else {
-        await notifyLINE(
-          `\n\nサーバーでエラーが発生しました。\n\n${e.message}`
-        );
+        await notifyLINE(`\n\nサーバーでエラーが発生しました。\n\n${e.message}`);
       }
     }
   });
