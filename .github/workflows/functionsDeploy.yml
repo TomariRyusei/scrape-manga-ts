@@ -11,18 +11,29 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
       - name: Setup node
         uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: "npm"
           cache-dependency-path: functions/package-lock.json
+
       - name: Install Dependencies
-        run: npm install -C functions
+        run: npm ci -C functions
+
+      - name: Setup Firebase CLI
+        run: |
+          curl -sL https://firebase.tools | bash
+        env:
+          CACHE_VERSION: v1
+        continue-on-error: true
+
       - name: Run tests
         run: npm run test -C functions
+
       - name: Deploy to Firebase
-        if: ${{ job.status == 'success' }}
+        if: ${{ success() }}
         uses: w9jds/firebase-action@master
         with:
           args: deploy --only functions
