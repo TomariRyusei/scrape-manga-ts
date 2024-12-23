@@ -13,7 +13,7 @@ export const scrapeManga = functions
   .runWith({
     timeoutSeconds: 300,
     memory: "1GB",
-    secrets: ["LINE_ACCESS_TOKEN", "MAIL_ADDRESS", "MAIL_SERVICE_PASSWORD"],
+    secrets: ["CHANNEL_ACCSESS_TOKEN", "MAIL_ADDRESS", "MAIL_SERVICE_PASSWORD"],
   })
   .region("asia-northeast1")
   .pubsub.schedule("0 10 1 * *")
