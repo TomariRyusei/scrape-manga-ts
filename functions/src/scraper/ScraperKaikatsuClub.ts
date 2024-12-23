@@ -12,7 +12,7 @@ export class ScraperKaikatsuClub implements IScraper {
 
   async execute(): Promise<void> {
     const browser = await puppeteer.launch({
-      headless: true,
+      headless: "new",
       args: [
         "--disable-gpu",
         "--disable-dev-shm-usage",
