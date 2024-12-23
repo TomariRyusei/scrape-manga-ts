@@ -4,5 +4,5 @@ export interface IScraper {
   readonly storeName: string;
   readonly url: string;
   readonly newArrivals: NewArrival[];
-  execute(): void;
+  execute(): Promise<void>;
 }
