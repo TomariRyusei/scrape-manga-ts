@@ -9,8 +9,10 @@ describe("LINE Messaging API", () => {
     const message = "Test message";
     const LINE_MESSAGING_API_URL = "https://api.line.me/v2/bot/message/broadcast";
     const CHANNEL_ACCSESS_TOKEN = "test_access_token";
+    const USER_ID = "test_user";
 
     process.env.CHANNEL_ACCSESS_TOKEN = CHANNEL_ACCSESS_TOKEN;
+    process.env.USER_ID = USER_ID;
 
     mockAxios.post.mockResolvedValue({ status: 200 });
 
@@ -18,10 +20,10 @@ describe("LINE Messaging API", () => {
 
     expect(mockAxios.post).toHaveBeenCalledWith(
       LINE_MESSAGING_API_URL,
-      { message },
+      { to: process.env.USER_ID, messages: [{ type: "text", text: message }] },
       {
         headers: {
-          Authorization: `Bearer ${CHANNEL_ACCSESS_TOKEN}`,
+          "Authorization": `Bearer ${CHANNEL_ACCSESS_TOKEN}`,
           "Content-Type": "application/json",
         },
       }
