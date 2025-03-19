@@ -1,5 +1,6 @@
 {
   "name": "functions",
+  "description": "Firebase Functions for manga scraping",
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
