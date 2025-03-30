@@ -3,7 +3,6 @@ export const myMangaList = [
   "九条の大罪",
   "BORUTO",
   "彼岸島",
-  "GANTZ:E",
   "ダーウィン事変",
   "GIGANTIS－ジャイガンティス－",
   "ヒソカニアサレ",
@@ -11,4 +10,5 @@ export const myMangaList = [
   "ケーキの切れない非行少年たち",
   "イリオス",
   "少年院ウシジマくん",
+  "路傍のフジイ",
 ];
