@@ -1,7 +1,8 @@
 import * as functions from "firebase-functions";
 import { MangaService } from "./domain/services/mangaService";
 import { ScrapeMangaUseCase } from "./application/useCases/scrapeMangaUseCase";
-import { WebScraper } from "./infrastructure/adapters/scraping/webScraper";
+// import { WebScraper } from "./infrastructure/adapters/scraping/webScraper";
+import { WebScraperCheerio } from "./infrastructure/adapters/scraping/webScraperCheerio";
 import { LineNotifier } from "./infrastructure/adapters/notification/lineNotifier";
 import { EmailNotifier } from "./infrastructure/adapters/notification/emailNotifier";
 import { myMangaList } from "./infrastructure/data/myMangaList";
@@ -33,7 +34,7 @@ export const scrapeManga = functions
     const RECIPIENT_EMAIL = process.env.MAIL_ADDRESS;
 
     const mangaService = new MangaService(SCRAPING_STORE_NAME);
-    const scraper = new WebScraper();
+    const scraper = new WebScraperCheerio();
 
     let notifier;
     if (NOTIFIATION_TYPE === "line") {
@@ -68,7 +69,7 @@ export const scrapeMangaManually = functions
     }
 
     const mangaService = new MangaService(SCRAPING_STORE_NAME);
-    const scraper = new WebScraper();
+    const scraper = new WebScraperCheerio();
 
     let notifier;
     if (NOTIFIATION_TYPE === "line") {
